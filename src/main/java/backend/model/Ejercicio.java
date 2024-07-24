@@ -2,8 +2,9 @@ package backend.model;
 
 
 import jakarta.persistence.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,41 +17,48 @@ public class Ejercicio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @CreatedDate
-    @Column(name = "createdAt", nullable = false, updatable = false)
+    /*DEFAULT CURRENT_TIMESTAMP,
+     *  CURRENT_TIMESTAMP es una función de PostgreSQL que devuelve la fecha
+     *  y hora actuales del servidor. Si no se proporciona un valor
+     *  explícito al insertar una nueva fila,  se usará la fecha
+     * y hora actuales por defecto.
+     * */
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false, columnDefinition = "timestamp(0) without time zone")
+    @ColumnDefault("CURRENT_TIMESTAMP") //
     private LocalDateTime createdAt;
 
-    @LastModifiedBy
-    @Column(name = "updatedAt" , nullable = false )
+
+    @UpdateTimestamp
+    @Column(nullable = false, updatable = false, columnDefinition = "timestamp(0) without time zone")
+    @ColumnDefault("CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    @Column(name="nombre", length = 255, nullable = false)
+    @Column(name = "nombre", length = 255, nullable = false)
     private String nombre;
 
-    @Column(name="fecha_inicio", nullable= false)
+    @Column(name = "fecha_inicio", nullable = false)
     private LocalDate fechaInicio;
 
-    @Column(name = "fecha_fin", nullable= false)
+    @Column(name = "fecha_fin", nullable = false)
     private LocalDate fechaFin;
 
-    @Column(name = "estado", nullable= false)
+
+    @Column(name = "estado", nullable = false)
+    @ColumnDefault("true")
     private Boolean estado;
-/*
-* Utilizar el Valor Predeterminado con el @PrePersist
-        * utilizar el método @PrePersist para inicializar campos
-        * antes de que el objeto sea persistido en la base de datos:
-        *
-        * --Es para automatizar la fecha de creacion y actualizacion.
-* */
+
+
+    /*
+     * Utilizar el Valor Predeterminado con el @PrePersist
+     * utilizar el método @PrePersist para inicializar campos
+     * antes de que el objeto sea persistido en la base de datos:
+     *
+     * --Es para automatizar EL ESTADO a true.
+     * */
+
     @PrePersist
     protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (updatedAt == null) {
-            updatedAt = LocalDateTime.now();
-        }
-
         if (estado == null) {
             estado = true;
         }
@@ -115,17 +123,3 @@ public class Ejercicio {
 }
 
 
-/*
-*
-* Table ejercicios {
-  id          Int       [pk, increment]
-  createdAt   DateTime  [default: `now()`]
-  updatedAt   DateTime  [default: `now()`, note: 'updatedAt']
-  nombre      String    [note: 'VarChar(255)']
-  estado      String    [default: 'ACTIVO']
-  fechaInicio DateTime  [note: 'fecha_inicio']
-  fechaFin    DateTime  [note: 'fecha_fin']
-
-  Note: 'ejercicios'
-}
-* */
